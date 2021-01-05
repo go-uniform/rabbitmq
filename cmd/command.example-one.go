@@ -8,8 +8,8 @@ import (
 
 var exampleOneCmd = &cobra.Command{
 	Use:   "command:example-one",
-	Short: "Request the running " + AppName + " to execute the example-one command",
-	Long:  "Request the running " + AppName + " to execute the example-one command",
+	Short: "Request the running " + service.AppName + " to execute the example-one command",
+	Long:  "Request the running " + service.AppName + " to execute the example-one command",
 	Run: func(cmd *cobra.Command, args []string) {
 		service.Command("example-one", natsUri)
 	},
