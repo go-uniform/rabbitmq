@@ -9,9 +9,15 @@ import (
 	"reflect"
 	"runtime"
 	"syscall"
+	"time"
 )
 
-func Execute(test bool, natsUri string, natsOptions []nats.Option, argsMap M) {
+func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, argsMap M) {
+	rateLimit := time.Nanosecond
+	if limit > 0 && limit < 1000000 {
+		rateLimit = time.Second / time.Duration(limit)
+	}
+
 	testMode = test
 
 	args = M{}
@@ -40,7 +46,7 @@ func Execute(test bool, natsUri string, natsOptions []nats.Option, argsMap M) {
 				"topic":   topic,
 				"handler": runtime.FuncForPC(reflect.ValueOf(handler).Pointer()).Name(),
 			})
-			subscription, err := c.QueueSubscribe(topic, AppName, handler)
+			subscription, err := c.QueueSubscribe(rateLimit, topic, AppName, handler)
 			if err != nil {
 				p.Error("subscribe", "failed to subscribe for topic", diary.M{
 					"project": AppProject,

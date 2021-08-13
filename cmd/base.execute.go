@@ -14,6 +14,7 @@ var natsCert string
 var natsKey string
 var level string
 var rate int
+var limit int
 var test bool
 var disableTls bool
 
