@@ -1,3 +1,4 @@
 FROM scratch
 ADD build /
-CMD ["/build"]
+ENTRYPOINT ["/build"]
+CMD ["run"]

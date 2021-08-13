@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"go-uniform/base-service/service"
 	"os"
+	"service/service"
 )
 
 var rootCmd = &cobra.Command{

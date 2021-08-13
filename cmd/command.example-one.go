@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/nats-io/go-nats"
 	"github.com/spf13/cobra"
-	"go-uniform/base-service/service"
+	"service/service"
 )
 
 var exampleOneCmd = &cobra.Command{

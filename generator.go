@@ -9,6 +9,7 @@ import (
 	"go/format"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"os/exec"
 	"os/user"
@@ -16,6 +17,7 @@ import (
 	"path/filepath"
 	"strings"
 	"text/template"
+	"encoding/json"
 )
 
 const (
@@ -85,6 +87,7 @@ const (
   AppDescription="{{.Description}}"
   AppVersion="{{.Version}}"
   AppCommit="{{.Commit}}"
+  AppRepository="{{.Repository}}"
 )
 
 var MustAsset = func(file string) []byte {
@@ -117,6 +120,7 @@ type TemplateModel struct {
 	Description string
 	Version string
 	Commit string
+	Repository string
 	Files map[string][]byte
 }
 
@@ -130,11 +134,37 @@ func main() {
 	var description = ""
 	var version = "alpha.dev"
 	var commit = ""
+	var repository = ""
 
-	tmp, err := ioutil.ReadFile(".description")
+	tmp, err := exec.Command("git", "remote", "get-url", "origin").Output()
+	if err == nil && tmp != nil && strings.TrimSpace(string(tmp)) != "" {
+		repository = strings.TrimSpace(string(tmp))
+	}
+
+	if strings.HasPrefix(repository, "git@github.com:") {
+		githubRepoInfoUrl := fmt.Sprintf("https://api.github.com/repos/%s", strings.TrimPrefix(strings.TrimSuffix(repository, ".git"), "git@github.com:"))
+		request, err := http.NewRequest("GET", githubRepoInfoUrl, nil)
+		client := &http.Client{}
+		resp, err := client.Do(request)
+		if err == nil {
+			defer resp.Body.Close()
+			body, err := ioutil.ReadAll(resp.Body)
+			if err == nil {
+				var object map[string]interface{}
+				if json.Unmarshal(body, &object) == nil {
+					if value, exists := object["description"]; exists {
+						description = fmt.Sprint(value)
+					}
+				}
+			}
+		}
+	}
+
+	tmp, err = ioutil.ReadFile(".description")
 	if err == nil {
 		description = string(tmp)
 	}
+
 	hostname, err := os.Hostname()
 	if err == nil {
 		me, err := user.Current()
@@ -165,6 +195,7 @@ func main() {
 		Description: description,
 		Version: version,
 		Commit: commit,
+		Repository: repository,
 		Files: make(map[string][]byte),
 	}
 

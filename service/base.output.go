@@ -30,7 +30,7 @@ func Output(natsUri, command string, timeout time.Duration, vars interface{}) {
 	// Close connection
 	defer c.Close()
 
-	d = diary.Dear(AppClient, AppProject, AppName, nil, "git@github.com:go-uniform/uniform.git", AppCommit, nil, nil, diary.LevelFatal, nil)
+	d = diary.Dear(AppClient, AppProject, AppName, nil, AppRepository, AppCommit, []string{ AppVersion }, nil, diary.LevelFatal, nil)
 	d.Page(-1, traceRate, true, AppName, nil, "", "", nil, func(p diary.IPage) {
 		fmt.Printf("executing %s command\n", command)
 		if err := c.Request(p, local(fmt.Sprintf("command.%s", command)), timeout, uniform.Request{

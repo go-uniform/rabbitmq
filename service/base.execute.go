@@ -13,21 +13,19 @@ import (
 	"syscall"
 )
 
-func Execute(test bool, natsUri, environment, level string, rate int, handler diary.H, argsMap M) {
+func Execute(test bool, natsUri string, natsOptions []nats.Option, level string, rate int, handler diary.H, argsMap M) {
 	lvl := diary.ConvertFromTextLevel(level)
 	if diary.IsValidLevel(lvl) {
 		panic(fmt.Sprintf("level must be one of the following values: %s", strings.Join(diary.TextLevels, ", ")))
 	}
 	testMode = test
 	traceRate = rate
-	env = environment
 
 	args = M{}
 	if argsMap != nil {
 		args = argsMap
 	}
 	args["nats"] = natsUri
-	args["env"] = environment
 
 	natsConn, err := nats.Connect(natsUri)
 	if err != nil {
@@ -41,7 +39,7 @@ func Execute(test bool, natsUri, environment, level string, rate int, handler di
 	// Close connection
 	defer c.Close()
 
-	d = diary.Dear(AppClient, AppProject, AppName, nil, "git@github.com:go-uniform/uniform.git", AppCommit, nil, nil, lvl, handler)
+	d = diary.Dear(AppClient, AppProject, AppName, nil, AppRepository, AppCommit, []string{ AppVersion }, nil, lvl, handler)
 	d.Page(-1, traceRate, true, AppName, nil, "", "", nil, func(p diary.IPage) {
 		// subscribe all actions
 		for topic, handler := range actions {

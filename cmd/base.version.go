@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"go-uniform/base-service/service"
+	"service/service"
 )
 
 var versionCmd = &cobra.Command{

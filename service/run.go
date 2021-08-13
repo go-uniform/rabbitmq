@@ -10,5 +10,5 @@ const (
 )
 
 func Run(p diary.IPage) {
-	// todo: subscribe topics
+	// add your custom start up logic here
 }
