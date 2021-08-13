@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"github.com/go-diary/diary"
 	"github.com/go-uniform/uniform"
 	"github.com/nats-io/go-nats"
@@ -8,6 +9,7 @@ import (
 	"os/signal"
 	"reflect"
 	"runtime"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -39,14 +41,14 @@ func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, ar
 	defer c.Close()
 
 	d.Page(-1, traceRate, true, AppName, nil, "", "", nil, func(p diary.IPage) {
-		// subscribe all actions
+		// subscribe all actions [generic]
 		for topic, handler := range actions {
-			p.Info("subscribe", diary.M{
+			p.Info(fmt.Sprintf("subscribe.%s", topic), diary.M{
 				"project": AppProject,
 				"topic":   topic,
 				"handler": runtime.FuncForPC(reflect.ValueOf(handler).Pointer()).Name(),
 			})
-			subscription, err := c.QueueSubscribe(rateLimit, topic, AppName, handler)
+			subscription, err := c.QueueSubscribe(rateLimit, topic, AppService, handler)
 			if err != nil {
 				p.Error("subscribe", "failed to subscribe for topic", diary.M{
 					"project": AppProject,
@@ -57,7 +59,35 @@ func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, ar
 			subscriptions[topic] = subscription
 		}
 
-		Run(p)
+		// subscribe all actions [service specific]
+		for topic, handler := range actions {
+			if !strings.HasPrefix(topic, AppService + ".") {
+				// skip all non-routine topics
+				continue
+			}
+
+			topic = fmt.Sprintf("%s.%s", AppName, topic)
+			p.Info(fmt.Sprintf("subscribe.%s", topic), diary.M{
+				"project": AppProject,
+				"topic":   topic,
+				"handler": runtime.FuncForPC(reflect.ValueOf(handler).Pointer()).Name(),
+			})
+			subscription, err := c.QueueSubscribe(rateLimit, topic, AppService, handler)
+			if err != nil {
+				p.Error("subscribe", "failed to subscribe for topic", diary.M{
+					"project": AppProject,
+					"topic": topic,
+					"error": err,
+				})
+			}
+			subscriptions[topic] = subscription
+		}
+
+		if err := p.Scope("run", func(p diary.IPage) {
+			Run(p)
+		}); err != nil {
+			panic(err)
+		}
 
 		// Go signal notification works by sending `os.Signal`
 		// values on a channel. We'll create a channel to

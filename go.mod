@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/aws/aws-sdk-go v1.40.22 // indirect
 	github.com/go-diary/diary v0.0.0-20210101215357-b1f47bcad4b4
-	github.com/go-uniform/uniform v0.0.0-20210813193403-cb48020ce29f
+	github.com/go-uniform/uniform v0.0.0-20210813202412-b966b9f534af
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/klauspost/compress v1.13.4 // indirect
 	github.com/nats-io/gnatsd v1.4.1 // indirect
