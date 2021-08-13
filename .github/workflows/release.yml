@@ -25,7 +25,7 @@ jobs:
 
       - run: |
           go generate -v .
-          go build ./...
+          go build -o build
           go test -run=^$ ./...
 
       - name: Log in to the Container registry
