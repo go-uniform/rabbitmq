@@ -18,6 +18,8 @@ jobs:
         with:
           go-version: 1.16.x
 
-      - run: go test -coverprofile=coverage.txt -covermode=atomic -race ./...
+      - run: |
+        go generate
+        go test -coverprofile=coverage.txt -covermode=atomic -race ./...
 
       - uses: codecov/codecov-action@v1
