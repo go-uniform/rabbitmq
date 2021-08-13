@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"github.com/go-diary/diary"
 	"github.com/go-uniform/uniform"
 	"github.com/nats-io/go-nats"
@@ -9,17 +8,11 @@ import (
 	"os/signal"
 	"reflect"
 	"runtime"
-	"strings"
 	"syscall"
 )
 
-func Execute(test bool, natsUri string, natsOptions []nats.Option, level string, rate int, handler diary.H, argsMap M) {
-	lvl := diary.ConvertFromTextLevel(level)
-	if diary.IsValidLevel(lvl) {
-		panic(fmt.Sprintf("level must be one of the following values: %s", strings.Join(diary.TextLevels, ", ")))
-	}
+func Execute(test bool, natsUri string, natsOptions []nats.Option, argsMap M) {
 	testMode = test
-	traceRate = rate
 
 	args = M{}
 	if argsMap != nil {
@@ -27,7 +20,7 @@ func Execute(test bool, natsUri string, natsOptions []nats.Option, level string,
 	}
 	args["nats"] = natsUri
 
-	natsConn, err := nats.Connect(natsUri)
+	natsConn, err := nats.Connect(natsUri, natsOptions...)
 	if err != nil {
 		panic(err)
 	}
@@ -39,7 +32,6 @@ func Execute(test bool, natsUri string, natsOptions []nats.Option, level string,
 	// Close connection
 	defer c.Close()
 
-	d = diary.Dear(AppClient, AppProject, AppName, nil, AppRepository, AppCommit, []string{ AppVersion }, nil, lvl, handler)
 	d.Page(-1, traceRate, true, AppName, nil, "", "", nil, func(p diary.IPage) {
 		// subscribe all actions
 		for topic, handler := range actions {

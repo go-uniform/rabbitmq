@@ -10,5 +10,5 @@ const (
 )
 
 func Run(p diary.IPage) {
-	// add your custom start up logic here
+	// todo: add your custom start up logic here
 }

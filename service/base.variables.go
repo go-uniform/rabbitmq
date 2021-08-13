@@ -17,9 +17,6 @@ var traceRate int
 // A private package level variable that contains the running uniform event bus connection instance
 var c uniform.IConn
 
-// A private package level variable that contains the running service's environment
-var env string
-
 // A private package level variable that indicates if service is in test mode
 var testMode = false
 

@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/nats-io/go-nats"
 	"github.com/spf13/cobra"
 	"service/service"
 )
@@ -11,11 +10,11 @@ var exampleOneCmd = &cobra.Command{
 	Short: "Request the running " + service.AppName + " to execute the example-one command",
 	Long:  "Request the running " + service.AppName + " to execute the example-one command",
 	Run: func(cmd *cobra.Command, args []string) {
-		service.Command("example-one", natsUri)
+		service.InitializeDiary(test, level, rate)
+		service.Command("example-one", natsUri, compileNatsOptions(), map[string]string{})
 	},
 }
 
 func init() {
-	exampleOneCmd.Flags().StringVarP(&natsUri, "nats", "n", nats.DefaultURL, "The nats cluster URI")
 	rootCmd.AddCommand(exampleOneCmd)
 }

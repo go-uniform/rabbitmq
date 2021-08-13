@@ -7,13 +7,7 @@ First step is to compile resources and metadata into the project's source-code:
 go generate
 ```
 This will create a file `service/meta.go` which is ignored by the `.gitignore` and contains the project's resources and metadata.
-
-### Future Plans
-Instead of `.description` file, use github curl request as primary method to get service description:
-```
-curl https://api.github.com/repos/go-uniform/base-api
-``` 
-keep `.description` file as a fail-over for project not on source-control.
+Create `.description` file to override the description as pulled from Github.
 
 ### CLI Commands
 
@@ -22,22 +16,20 @@ cmd command example `cmd/command.example-one.go`:
 package cmd
 
 import (
-	"github.com/nats-io/go-nats"
 	"github.com/spf13/cobra"
 	"service/service"
 )
 
 var exampleOneCmd = &cobra.Command{
 	Use:   "command:example-one",
-	Short: "Request the running " + AppName + " to execute the example-one command",
-	Long:  "Request the running " + AppName + " to execute the example-one command",
+	Short: "Request the running " + service.AppName + " to execute the example-one command",
+	Long:  "Request the running " + service.AppName + " to execute the example-one command",
 	Run: func(cmd *cobra.Command, args []string) {
-		service.Command("example-one", natsUri)
+		service.Command("example-one", natsUri, compileNatsOptions())
 	},
 }
 
 func init() {
-	exampleOneCmd.Flags().StringVarP(&natsUri, "nats", "n", nats.DefaultURL, "The nats cluster URI")
 	rootCmd.AddCommand(exampleOneCmd)
 }
 ```

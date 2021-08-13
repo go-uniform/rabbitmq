@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"github.com/go-diary/diary"
 	"github.com/go-uniform/uniform"
 )
@@ -10,5 +11,6 @@ func init() {
 }
 
 func exampleOne(r uniform.IRequest, p diary.IPage) {
+	fmt.Println(r.Parameters())
 	// todo: write logic here
 }

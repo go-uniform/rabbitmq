@@ -7,8 +7,7 @@ import (
 	"github.com/nats-io/go-nats"
 )
 
-
-func Command(command, natsUri string) {
+func Command(cmd, natsUri string, natsOptions []nats.Option, args map[string]string) {
 	defer func() {
 		if r := recover(); r != nil {
 			if _, e := fmt.Printf("%v", r); e != nil {
@@ -17,7 +16,7 @@ func Command(command, natsUri string) {
 		}
 	}()
 
-	natsConn, err := nats.Connect(natsUri)
+	natsConn, err := nats.Connect(natsUri, natsOptions...)
 	if err != nil {
 		panic(err)
 	}
@@ -29,10 +28,11 @@ func Command(command, natsUri string) {
 	// Close connection
 	defer c.Close()
 
-	d = diary.Dear(AppClient, AppProject, AppName, nil, AppRepository, AppCommit, []string{ AppVersion }, nil, diary.LevelFatal, nil)
 	d.Page(-1, traceRate, true, AppName, nil, "", "", nil, func(p diary.IPage) {
-		fmt.Printf("executing %s command\n", command)
-		if err := c.Publish(p, fmt.Sprintf("command.%s", command), uniform.Request{}); err != nil {
+		p.Info(cmd, nil)
+		if err := c.Publish(p, local(command(cmd)), uniform.Request{
+			Parameters: args,
+		}); err != nil {
 			panic(err)
 		}
 	})
