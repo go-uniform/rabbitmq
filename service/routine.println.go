@@ -14,9 +14,15 @@ func println(r uniform.IRequest, p diary.IPage) {
 	var message string
 	r.Read(&message)
 
-	fmt.Println("-----------------------------------------------------------\n\n")
+	fmt.Println("-----------------------------------------------------------")
+	fmt.Println()
+	fmt.Println()
+	fmt.Println()
 	fmt.Println(message)
-	fmt.Println("\n\n\n-----------------------------------------------------------")
+	fmt.Println()
+	fmt.Println()
+	fmt.Println()
+	fmt.Println("-----------------------------------------------------------")
 
 	if r.CanReply() {
 		if err := r.Reply(uniform.Request{}); err != nil {
