@@ -2,7 +2,6 @@ package service
 
 import (
 	"github.com/go-diary/diary"
-	"time"
 )
 
 const (
@@ -10,7 +9,6 @@ const (
 	AppProject = "uniform"
 	AppService = "service"
 	Database = AppService
-	DatabaseTimeout = time.Second * 5
 )
 
 func Run(p diary.IPage) {
