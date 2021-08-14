@@ -9,6 +9,7 @@ const (
 	AppClient = "uprate"
 	AppProject = "uniform"
 	AppService = "service"
+	Database = AppService
 	DatabaseTimeout = time.Second * 5
 )
 
