@@ -12,10 +12,10 @@ var MustAsset = _base.MustAsset
 
 // load all actions, commands, events and hooks
 func init() {
-	actions.Load(_base.MustAsset)
-	commands.Load(_base.MustAsset)
-	events.Load(_base.MustAsset)
-	hooks.Load(_base.MustAsset)
+	actions.Load(args, _base.MustAsset)
+	commands.Load(args, _base.MustAsset)
+	events.Load(args, _base.MustAsset)
+	hooks.Load(args, _base.MustAsset)
 	_base.AppClient = AppClient
 	_base.AppProject = AppProject
 	_base.AppService = AppService
