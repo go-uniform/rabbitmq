@@ -32,5 +32,7 @@ func init() {
 	runCmd.Flags().BoolVar(&test, "test", false, "A flag indicating if service should enter into test mode")
 	// todo: add custom CLI flags here
 
+	// todo: add custom CLI flag validations here
+
 	_base.RootCmd.AddCommand(runCmd)
 }
