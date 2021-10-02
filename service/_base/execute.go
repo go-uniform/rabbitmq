@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"reflect"
 	"runtime"
+	"service/service/info"
 	"strings"
 	"syscall"
 	"time"
@@ -39,7 +40,7 @@ func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, ar
 
 	defer c.Close()
 
-	d.Page(-1, traceRate, true, AppName, nil, "", "", nil, func(p diary.IPage) {
+	d.Page(-1, traceRate, true, info.AppName, nil, "", "", nil, func(p diary.IPage) {
 		// service custom run routine before subscribing actions
 		if err := p.Scope("run.before", func(p diary.IPage) {
 			runBefore(p)
@@ -72,7 +73,7 @@ func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, ar
 				continue
 			}
 
-			topic = fmt.Sprintf("%s.%s", AppName, topic)
+			topic = fmt.Sprintf("%s.%s", info.AppName, topic)
 			p.Info(fmt.Sprintf("subscribe.%s", topic), diary.M{
 				"project": AppProject,
 				"topic":   topic,

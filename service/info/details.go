@@ -1,4 +1,4 @@
-package service
+package info
 
 /* Details
 Your hardcoded global service instance details for runtime

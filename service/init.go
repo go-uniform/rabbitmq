@@ -6,28 +6,29 @@ import (
 	"service/service/commands"
 	"service/service/events"
 	"service/service/hooks"
+	"service/service/info"
 )
 
-var MustAsset = _base.MustAsset
+var MustAsset = info.MustAsset
 
 // load all actions, commands, events and hooks
 func init() {
-	actions.Load(args, _base.MustAsset)
-	commands.Load(args, _base.MustAsset)
-	events.Load(args, _base.MustAsset)
-	hooks.Load(args, _base.MustAsset)
-	_base.AppClient = AppClient
-	_base.AppProject = AppProject
-	_base.AppService = AppService
-	_base.Database = Database
+	actions.Load(args, info.MustAsset)
+	commands.Load(args, info.MustAsset)
+	events.Load(args, info.MustAsset)
+	hooks.Load(args, info.MustAsset)
+	_base.AppClient = info.AppClient
+	_base.AppProject = info.AppProject
+	_base.AppService = info.AppService
+	_base.Database = info.Database
 }
 
 // wrap base const to avoid circular reference
 const (
-	AppName        = _base.AppName
-	AppDescription = _base.AppDescription
-	AppVersion     = _base.AppVersion
-	AppCommit      = _base.AppCommit
+	AppName        = info.AppName
+	AppDescription = info.AppDescription
+	AppVersion     = info.AppVersion
+	AppCommit      = info.AppCommit
 )
 
 // wrap base type to avoid circular reference

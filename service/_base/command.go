@@ -5,6 +5,7 @@ import (
 	"github.com/go-diary/diary"
 	"github.com/go-uniform/uniform"
 	"github.com/nats-io/go-nats"
+	"service/service/info"
 	"time"
 )
 
@@ -28,7 +29,7 @@ func Command(cmd string, timeout time.Duration, natsUri string, natsOptions []na
 
 	defer c.Close()
 
-	d.Page(-1, traceRate, true, AppName, nil, "", "", nil, func(p diary.IPage) {
+	d.Page(-1, traceRate, true, info.AppName, nil, "", "", nil, func(p diary.IPage) {
 		if err := c.Request(p, TargetCommand(cmd), timeout, uniform.Request{
 			Parameters: args,
 		}, func(r uniform.IRequest, p diary.IPage) {
