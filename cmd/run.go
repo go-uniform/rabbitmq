@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cobra"
 	"service/cmd/_base"
 	"service/service"
+	"service/service/info"
 )
 
 func init() {
@@ -16,8 +17,8 @@ func init() {
 
 	var runCmd = &cobra.Command{
 		Use:   "run",
-		Short: "Run " + service.AppName + " service",
-		Long:  "Run " + service.AppName + " service",
+		Short: "Run " + info.AppName + " service",
+		Long:  "Run " + info.AppName + " service",
 		Run: func(cmd *cobra.Command, args []string) {
 			service.Execute(level, rate, limit, test, _base.NatsUri, _base.CompileNatsOptions(), uniform.M{
 				// todo: link custom flags to arg values here, example: "custom": custom,

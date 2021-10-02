@@ -1,7 +1,6 @@
 package _base
 
 import (
-	"fmt"
 	"github.com/go-diary/diary"
 	"github.com/go-uniform/uniform"
 	"github.com/nats-io/go-nats"
@@ -10,13 +9,8 @@ import (
 )
 
 func Command(cmd string, timeout time.Duration, natsUri string, natsOptions []nats.Option, args map[string]string, responseHandler func([]byte)) {
-	defer func() {
-		if r := recover(); r != nil {
-			if _, e := fmt.Printf("%v", r); e != nil {
-				panic(e)
-			}
-		}
-	}()
+	// no diary for commands since we want response data to be only thing is stdout
+	InitializeNoDiary()
 
 	natsConn, err := nats.Connect(natsUri, natsOptions...)
 	if err != nil {
