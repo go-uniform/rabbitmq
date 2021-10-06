@@ -72,7 +72,24 @@ func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, ru
 				"topic":   topic,
 				"handler": runtime.FuncForPC(reflect.ValueOf(handler).Pointer()).Name(),
 			})
-			subscription, err := c.QueueSubscribe(rateLimit, topic, info.AppService, handler)
+			subscription, err := c.QueueSubscribe(rateLimit, topic, info.AppService, func(r uniform.IRequest, p diary.IPage) {
+				defer func() {
+					if r := recover(); r != nil {
+						var err error
+						msg := "unexpected error occurred"
+						if rErr, ok := r.(error); ok {
+							err = rErr
+							msg = rErr.Error()
+						}
+						p.Error(fmt.Sprintf("subscribe.%s", topic), msg, diary.M{
+							"recover": r,
+							"error": err,
+						})
+					}
+				}()
+
+				handler(r, p)
+			})
 			if err != nil {
 				p.Error("subscribe", "failed to subscribe for topic", diary.M{
 					"project": info.AppProject,
@@ -96,7 +113,24 @@ func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, ru
 				"topic":   topic,
 				"handler": runtime.FuncForPC(reflect.ValueOf(handler).Pointer()).Name(),
 			})
-			subscription, err := c.QueueSubscribe(rateLimit, topic, info.AppService, handler)
+			subscription, err := c.QueueSubscribe(rateLimit, topic, info.AppService, func(r uniform.IRequest, p diary.IPage) {
+				defer func() {
+					if r := recover(); r != nil {
+						var err error
+						msg := "unexpected error occurred"
+						if rErr, ok := r.(error); ok {
+							err = rErr
+							msg = rErr.Error()
+						}
+						p.Error(fmt.Sprintf("subscribe.%s", topic), msg, diary.M{
+							"recover": r,
+							"error": err,
+						})
+					}
+				}()
+
+				handler(r, p)
+			})
 			if err != nil {
 				p.Error("subscribe", "failed to subscribe for topic", diary.M{
 					"project": info.AppProject,
