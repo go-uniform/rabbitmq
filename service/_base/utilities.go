@@ -7,6 +7,14 @@ import (
 	"strings"
 )
 
+// use this to separate project specific logic from non-specific logic
+var TargetLocal = func(topic string) string {
+	if topic == "" {
+		return info.AppProject
+	}
+	return fmt.Sprintf("%s.%s", info.AppProject, strings.TrimPrefix(topic, info.AppProject+ "."))
+}
+
 // use this to target a topic for system specific action
 var TargetSystem = func(topic string) string {
 	if topic == "" {
@@ -62,44 +70,6 @@ var TargetAction = func(service, action string) string {
 		return fmt.Sprintf("action.%s", service)
 	}
 	return fmt.Sprintf("action.%s.%s", service, action)
-}
-
-// use this to separate project specific logic from non-specific logic
-var TargetLocal = func(topic string) string {
-	if topic == "" {
-		return info.AppProject
-	}
-	return fmt.Sprintf("%s.%s", info.AppProject, strings.TrimPrefix(topic, info.AppProject+ "."))
-}
-
-// local wrapper for TargetSystem
-var TargetLocalSystem = func(topic string) string {
-	return TargetLocal(TargetSystem(topic))
-}
-
-// local wrapper for TargetItem
-var TargetLocalItem = func(entity, action string) string {
-	return TargetLocal(TargetItem(entity, action))
-}
-
-// local wrapper for TargetList
-var TargetLocalList = func(entity, action string) string {
-	return TargetLocal(TargetList(entity, action))
-}
-
-// local wrapper for TargetCommand
-var TargetLocalCommand = func(topic string) string {
-	return TargetLocal(TargetCommand(topic))
-}
-
-// local wrapper for TargetEvent
-var TargetLocalEvent = func(service, event string) string {
-	return TargetLocal(TargetEvent(service, event))
-}
-
-// local wrapper for TargetAction
-var TargetLocalAction = func(service, action string) string {
-	return TargetLocal(TargetAction(service, action))
 }
 
 // add a topic/handler combination to the actions map

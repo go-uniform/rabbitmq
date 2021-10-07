@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/go-diary/diary v1.1.0
 	github.com/go-stack/stack v1.8.1 // indirect
-	github.com/go-uniform/uniform v0.0.0-20211007115502-348e416822de
+	github.com/go-uniform/uniform v0.0.0-20211006152323-0ca2e71383ee
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/nats-io/gnatsd v1.4.1 // indirect
