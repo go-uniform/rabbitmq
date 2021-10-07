@@ -2,6 +2,7 @@ package _base
 
 import (
 	"fmt"
+	"github.com/go-diary/diary"
 	"github.com/go-uniform/uniform"
 	"service/service/info"
 	"strings"
@@ -77,5 +78,22 @@ var Subscribe = func(topic string, handler uniform.S) {
 	if _, exists := actions[topic]; exists {
 		panic(fmt.Sprintf("topic '%s' has already been subscribed", topic))
 	}
-	actions[topic] = handler
+	actions[topic] = func(r uniform.IRequest, p diary.IPage) {
+		defer func() {
+			if r := recover(); r != nil {
+				var err error
+				msg := "unexpected error occurred"
+				if rErr, ok := r.(error); ok {
+					err = rErr
+					msg = rErr.Error()
+				}
+				p.Error(fmt.Sprintf("subscribe.%s", topic), msg, diary.M{
+					"recover": r,
+					"error": err,
+				})
+			}
+		}()
+
+		handler(r, p)
+	}
 }
