@@ -24,7 +24,7 @@ func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, ru
 	}
 
 	// set global testMode flag based on test arg
-	testMode = test
+	info.TestMode = test
 
 	// connect to nats backbone
 	natsConn, err := nats.Connect(natsUri, natsOptions...)
