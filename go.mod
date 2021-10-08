@@ -12,6 +12,7 @@ require (
 	github.com/nats-io/go-nats v1.7.2
 	github.com/nats-io/nkeys v0.3.0 // indirect
 	github.com/spf13/cobra v1.2.1
+	github.com/streadway/amqp v1.0.0
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
 	go.mongodb.org/mongo-driver v1.7.3 // indirect
 	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
