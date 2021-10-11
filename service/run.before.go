@@ -2,9 +2,11 @@ package service
 
 import (
 	"github.com/go-diary/diary"
+	"service/service/info"
+	"service/service/integrations/rabbitmq"
 	"sync"
 )
 
 func RunBefore(shutdown chan bool, group *sync.WaitGroup, p diary.IPage) {
-	// todo: add your custom startup logic here
+	info.Rabbitmq = rabbitmq.NewRabbitmqConnector(p)
 }

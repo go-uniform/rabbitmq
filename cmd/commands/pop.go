@@ -10,8 +10,8 @@ import (
 
 func init() {
 
-	cmd := _base.Command("pop", func(cmd *cobra.Command, args []string) {
-		service.Command("pop", time.Minute, _base.NatsUri, _base.CompileNatsOptions(), map[string]string{}, func(bytes []byte) {
+	cmd := _base.Command("queue.pop", func(cmd *cobra.Command, args []string) {
+		service.Command("queue.pop", time.Minute, _base.NatsUri, _base.CompileNatsOptions(), map[string]string{}, func(bytes []byte) {
 			fmt.Println(string(bytes))
 		})
 	}, "Push a message to a queue")
