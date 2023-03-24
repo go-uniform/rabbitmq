@@ -128,6 +128,6 @@ func exampleThree(r uniform.IRequest, p diary.IPage) {
 #### Sync Template Repository
 ```
 git remote add template git@github.com:go-uniform/base-service.git
-git fetch --all
+git fetch template main
 git merge template/main --allow-unrelated-histories
 ```
