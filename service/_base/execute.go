@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, runBefore func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage), runAfter func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage)) {
+func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, runBefore func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage), runAfter func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage), ) {
 	// set rate limiting duration using limit arg
 	rateLimit := time.Nanosecond
 	if limit > 0 && limit < 1000000 {
@@ -87,7 +87,7 @@ func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, ru
 
 		// subscribe all actions [service specific]
 		for topic, handler := range actions {
-			if !strings.HasPrefix(topic, info.AppService+".") {
+			if !strings.HasPrefix(topic, info.AppService+ ".") {
 				// skip all non-routine topics
 				continue
 			}
@@ -160,10 +160,10 @@ func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, ru
 		}
 
 		p.Notice("unsubscribe.all", diary.M{
-			"topics.actions":       reflect.ValueOf(actions).MapKeys(),
+			"topics.actions": reflect.ValueOf(actions).MapKeys(),
 			"topics.subscriptions": reflect.ValueOf(subscriptions).MapKeys(),
-			"count.actions":        len(actions),
-			"count.subscriptions":  len(subscriptions),
+			"count.actions": len(actions),
+			"count.subscriptions": len(subscriptions),
 		})
 
 		// unsubscribe all actions
