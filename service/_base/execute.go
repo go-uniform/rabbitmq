@@ -16,15 +16,18 @@ import (
 	"time"
 )
 
-func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, runBefore func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage), runAfter func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage), shutdownBefore func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage), shutdownAfter func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage)) {
+func Execute(limit int, test, virtual bool, natsUri string, natsOptions []nats.Option, runBefore func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage), runAfter func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage), shutdownBefore func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage), shutdownAfter func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage)) {
 	// set rate limiting duration using limit arg
 	rateLimit := time.Nanosecond
 	if limit > 0 && limit < 1000000 {
 		rateLimit = time.Second / time.Duration(limit)
 	}
 
-	// set global testMode flag based on test arg
+	// set global TestMode flag based on test arg
 	info.TestMode = test
+
+	// set global Virtualize flag based on virtual arg
+	info.Virtualize = virtual
 
 	// connect to nats backbone
 	natsConn, err := nats.Connect(natsUri, natsOptions...)
@@ -54,6 +57,7 @@ func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, ru
 			"rate":       info.Args["rate"],
 			"limit":      info.Args["limit"],
 			"test":       info.Args["test"],
+			"virtual":    info.Args["virtual"],
 		})
 
 		// service custom run routine before subscribing actions
