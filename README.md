@@ -7,6 +7,8 @@ A templated starting point for uniform microservices
 Generate required TLS certificates:
 ```
 sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/uniform-nats.key -out /etc/ssl/certs/uniform-nats.crt
+```
+```
 sudo chmod +r /etc/ssl/private/uniform-nats.key
 ```
 Then install NATS server:
@@ -23,6 +25,14 @@ mv nats-server-$nats_latest_version-linux-amd64/nats-server /usr/bin/nats-server
 Then run the NATS server: 
 ```
 nats-server --tls --tlscert /etc/ssl/certs/uniform-nats.crt --tlskey /etc/ssl/private/uniform-nats.key
+```
+
+#### HTTPS Certificates
+```
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/uniform-https.key -out /etc/ssl/certs/uniform-https.crt
+```
+```
+sudo chmod +r /etc/ssl/private/uniform-https.key
 ```
 
 ### Getting Started

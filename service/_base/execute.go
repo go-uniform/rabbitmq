@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, runBefore func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage), runAfter func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage)) {
+func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, runBefore func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage), runAfter func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage), shutdownBefore func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage), shutdownAfter func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage)) {
 	// set rate limiting duration using limit arg
 	rateLimit := time.Nanosecond
 	if limit > 0 && limit < 1000000 {
@@ -140,6 +140,14 @@ func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, ru
 			"signal": sig,
 		})
 
+		// service custom shutdown routine before trigger and unsubscribing actions
+		p.Notice("shutdown.before", nil)
+		if err := p.Scope("shutdown.before", func(p diary.IPage) {
+			shutdownBefore(shutdown, group, p)
+		}); err != nil {
+			panic(err)
+		}
+
 		// trigger shutdown to notify all other threads
 		p.Notice("shutdown", nil)
 		close(shutdown)
@@ -176,6 +184,14 @@ func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, ru
 					"error": err,
 				})
 			}
+		}
+
+		// service custom shutdown routine after trigger and unsubscribing actions
+		p.Notice("shutdown.after", nil)
+		if err := p.Scope("shutdown.after", func(p diary.IPage) {
+			shutdownAfter(shutdown, group, p)
+		}); err != nil {
+			panic(err)
 		}
 
 		p.Notice("drain", nil)
