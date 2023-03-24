@@ -7,14 +7,14 @@ import (
 )
 
 func init() {
-	_base.Subscribe(_base.TargetCommand("push"), push)
+	_base.Subscribe(_base.TargetCommand("queue.pop"), pop)
 }
 
-func push(r uniform.IRequest, p diary.IPage) {
+func pop(r uniform.IRequest, p diary.IPage) {
 	var params uniform.P
 	r.Read(&params)
 
-	if err := r.Conn().Request(p, _base.TargetAction("queue", "push"), r.Remainder(), uniform.Request{}, func(sub uniform.IRequest, _ diary.IPage) {
+	if err := r.Conn().Request(p, _base.TargetAction("queue", "pop"), r.Remainder(), uniform.Request{}, func(sub uniform.IRequest, _ diary.IPage) {
 		if sub.HasError() {
 			panic(sub.Error())
 		}
