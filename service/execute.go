@@ -23,5 +23,5 @@ func Execute(level string, rate, limit int, test bool, natsUri string, natsOptio
 	}
 
 	_base.InitializeDiary(test, level, rate)
-	_base.Execute(limit, test, natsUri, natsOptions, RunBefore, RunAfter)
+	_base.Execute(limit, test, natsUri, natsOptions, RunBefore, RunAfter, ShutdownBefore, ShutdownAfter)
 }

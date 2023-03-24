@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, runBefore func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage), runAfter func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage), ) {
+func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, runBefore func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage), runAfter func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage), shutdownBefore func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage), shutdownAfter func(shutdown chan bool, group *sync.WaitGroup, p diary.IPage)) {
 	// set rate limiting duration using limit arg
 	rateLimit := time.Nanosecond
 	if limit > 0 && limit < 1000000 {
@@ -46,14 +46,14 @@ func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, ru
 		group := &sync.WaitGroup{}
 
 		p.Notice("startup", diary.M{
-			"nats": info.Args["nats"],
-			"natsCert": info.Args["natsCert"],
-			"natsKey": info.Args["natsKey"],
+			"nats":       info.Args["nats"],
+			"natsCert":   info.Args["natsCert"],
+			"natsKey":    info.Args["natsKey"],
 			"disableTls": info.Args["disableTls"],
-			"lvl": info.Args["lvl"],
-			"rate": info.Args["rate"],
-			"limit": info.Args["limit"],
-			"test": info.Args["test"],
+			"lvl":        info.Args["lvl"],
+			"rate":       info.Args["rate"],
+			"limit":      info.Args["limit"],
+			"test":       info.Args["test"],
 		})
 
 		// service custom run routine before subscribing actions
@@ -85,7 +85,7 @@ func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, ru
 
 		// subscribe all actions [service specific]
 		for topic, handler := range actions {
-			if !strings.HasPrefix(topic, info.AppService+ ".") {
+			if !strings.HasPrefix(topic, info.AppService+".") {
 				// skip all non-routine topics
 				continue
 			}
@@ -140,6 +140,14 @@ func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, ru
 			"signal": sig,
 		})
 
+		// service custom shutdown routine before trigger and unsubscribing actions
+		p.Notice("shutdown.before", nil)
+		if err := p.Scope("shutdown.before", func(p diary.IPage) {
+			shutdownBefore(shutdown, group, p)
+		}); err != nil {
+			panic(err)
+		}
+
 		// trigger shutdown to notify all other threads
 		p.Notice("shutdown", nil)
 		close(shutdown)
@@ -158,10 +166,10 @@ func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, ru
 		}
 
 		p.Notice("unsubscribe.all", diary.M{
-			"topics.actions": reflect.ValueOf(actions).MapKeys(),
+			"topics.actions":       reflect.ValueOf(actions).MapKeys(),
 			"topics.subscriptions": reflect.ValueOf(subscriptions).MapKeys(),
-			"count.actions": len(actions),
-			"count.subscriptions": len(subscriptions),
+			"count.actions":        len(actions),
+			"count.subscriptions":  len(subscriptions),
 		})
 
 		// unsubscribe all actions
@@ -176,6 +184,14 @@ func Execute(limit int, test bool, natsUri string, natsOptions []nats.Option, ru
 					"error": err,
 				})
 			}
+		}
+
+		// service custom shutdown routine after trigger and unsubscribing actions
+		p.Notice("shutdown.after", nil)
+		if err := p.Scope("shutdown.after", func(p diary.IPage) {
+			shutdownAfter(shutdown, group, p)
+		}); err != nil {
+			panic(err)
 		}
 
 		p.Notice("drain", nil)
