@@ -2,7 +2,7 @@ package rabbitmq
 
 import "github.com/streadway/amqp"
 
-func (r *rabbitmq) PushQueue() {
+func (r *rabbitmq) Push() {
 
 	q, err := r.Channel.QueueDeclare(
 		"hello", // name

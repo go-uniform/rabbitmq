@@ -2,9 +2,10 @@ package service
 
 import (
 	"github.com/go-diary/diary"
+	"service/service/info"
 	"sync"
 )
 
 func ShutdownAfter(shutdown chan bool, group *sync.WaitGroup, p diary.IPage) {
-	// todo: add your custom exit logic here
+	info.Rabbitmq.Close()
 }

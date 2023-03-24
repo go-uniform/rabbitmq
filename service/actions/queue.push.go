@@ -15,7 +15,7 @@ func pushQueue(r uniform.IRequest, p diary.IPage) {
 
 	p.Notice("queue.push", nil)
 
-	info.Rabbitmq.PushQueue()
+	info.Rabbitmq.Push()
 
 	if r.CanReply() {
 		if err := r.Reply(uniform.Request{}); err != nil {

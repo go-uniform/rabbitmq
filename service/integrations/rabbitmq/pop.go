@@ -2,7 +2,7 @@ package rabbitmq
 
 import "log"
 
-func (r *rabbitmq) PopQueue() {
+func (r *rabbitmq) Pop() {
 
 	q, err := r.Channel.QueueDeclare(
 		"hello", // name

@@ -6,34 +6,39 @@ import (
 )
 
 type rabbitmq struct {
-	Page    diary.IPage
-	Channel *amqp.Channel
+	Page       diary.IPage
+	Connection *amqp.Connection
+	Channel    *amqp.Channel
+}
+
+func (r *rabbitmq) Close() error {
+	return r.Channel.Close()
 }
 
 type IRabbitmq interface {
-	PushQueue()
-	PopQueue()
+	Push()
+	Pop()
+	Close() error
 }
 
 func NewRabbitmqConnector(page diary.IPage) IRabbitmq {
 	var instance IRabbitmq
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	connection, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	//docker run -it --rm --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.9-management
 	if err != nil {
 		panic(err)
 	}
-	defer conn.Close()
 
-	channel, err := conn.Channel()
+	channel, err := connection.Channel()
 	if err != nil {
 		panic(err)
 	}
-	defer channel.Close()
 
 	page.Scope("rabbitmq", func(p diary.IPage) {
 		instance = &rabbitmq{
-			Page:    page,
-			Channel: channel,
+			Page:       page,
+			Connection: connection,
+			Channel:    channel,
 		}
 	})
 	return instance
