@@ -122,3 +122,14 @@ func exampleThree(r uniform.IRequest, p diary.IPage) {
 	// todo: write logic here
 }
 ```
+
+### Maintenance
+
+#### Sync Template Repository
+```
+git remote add template git@github.com:go-uniform/base-service.git
+```
+```
+git fetch --all
+git merge template/main --allow-unrelated-histories
+```
