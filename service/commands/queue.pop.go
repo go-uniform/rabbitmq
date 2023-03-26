@@ -18,15 +18,21 @@ func pop(r uniform.IRequest, p diary.IPage) {
 		if sub.HasError() {
 			panic(sub.Error())
 		}
+		if r.CanReply() {
+			var model interface{}
+			sub.Read(&model)
+			if err := r.Reply(uniform.Request{
+				Parameters: sub.Parameters(),
+				Context:    sub.Context(),
+				Model:      model,
+			}); err != nil {
+				p.Error("reply", err.Error(), diary.M{
+					"err": err,
+				})
+			}
+		}
 	}); err != nil {
 		panic(err)
 	}
 
-	if r.CanReply() {
-		if err := r.Reply(uniform.Request{}); err != nil {
-			p.Error("reply", err.Error(), diary.M{
-				"err": err,
-			})
-		}
-	}
 }

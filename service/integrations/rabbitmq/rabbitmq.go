@@ -17,7 +17,7 @@ func (r *rabbitmq) Close() error {
 
 type IRabbitmq interface {
 	Push()
-	Pop()
+	Pop() string
 	Close() error
 }
 
@@ -34,12 +34,15 @@ func NewRabbitmqConnector(page diary.IPage) IRabbitmq {
 		panic(err)
 	}
 
-	page.Scope("rabbitmq", func(p diary.IPage) {
+	if err := page.Scope("rabbitmq", func(p diary.IPage) {
 		instance = &rabbitmq{
 			Page:       page,
 			Connection: connection,
 			Channel:    channel,
 		}
-	})
+	}); err != nil {
+		panic(err)
+	}
+
 	return instance
 }

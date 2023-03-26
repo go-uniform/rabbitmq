@@ -1,40 +1,54 @@
 package rabbitmq
 
-import "log"
+import (
+	"fmt"
+	"github.com/streadway/amqp"
+	"sync"
+	"time"
+)
 
-func (r *rabbitmq) Pop() {
+var queueChannels = make(map[string]<-chan amqp.Delivery)
+var lock = sync.Mutex{}
 
-	q, err := r.Channel.QueueDeclare(
-		"hello", // name
-		false,   // durable
-		false,   // delete when unused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
+func consume(channel *amqp.Channel, queueName string) <-chan amqp.Delivery {
+	lock.Lock()
+	defer lock.Unlock()
+
+	if queueChannel, exists := queueChannels[queueName]; exists {
+		return queueChannel
+	}
+	queueChannel, err := channel.Consume(
+		queueName,
+		"",
+		false,
+		false,
+		false,
+		false,
+		nil,
 	)
 	if err != nil {
 		panic(err)
 	}
+	queueChannels[queueName] = queueChannel
 
-	messages, err := r.Channel.Consume(
-		q.Name, // queue
-		"",     // consumer
-		true,   // auto-ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil,    // args
-	)
-	if err != nil {
-		panic(err)
+	return queueChannel
+}
+
+func (r *rabbitmq) Pop() string {
+
+	queue := "hello"
+
+	select {
+	case <-time.Tick(time.Second):
+		break
+	case message, ok := <-consume(r.Channel, queue):
+		if ok {
+			defer func(m amqp.Delivery) {
+				_ = m.Ack(true)
+			}(message)
+			return fmt.Sprintf("#### Received a message: %s\n", message.Body)
+		}
 	}
 
-	forever := make(chan bool)
-
-	for message := range messages {
-		log.Printf("Received a message: %s", message.Body)
-	}
-
-	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
-	<-forever
+	return fmt.Sprintf("#### no messages on queue [%s]\n", queue)
 }

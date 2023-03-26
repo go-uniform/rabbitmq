@@ -15,10 +15,12 @@ func popQueue(r uniform.IRequest, p diary.IPage) {
 
 	p.Notice("queue.pop", nil)
 
-	info.Rabbitmq.Pop()
+	message := info.Rabbitmq.Pop()
 
 	if r.CanReply() {
-		if err := r.Reply(uniform.Request{}); err != nil {
+		if err := r.Reply(uniform.Request{
+			Model: message,
+		}); err != nil {
 			p.Error("reply", err.Error(), diary.M{
 				"err": err,
 			})
