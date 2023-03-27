@@ -6,5 +6,12 @@ import (
 )
 
 func RunAfter(shutdown chan bool, group *sync.WaitGroup, p diary.IPage) {
-	// todo: add your custom run logic here
+	//var queueNames = []string{ "test" }
+	//for _, queueName := range queueNames {
+	//	queue, queueChannel, err := info.Rabbitmq.Declare(queueName)
+	//	if err != nil {
+	//		panic(err)
+	//	}
+	//	go queueRunner(shutdown, group, p, queue, queueChannel)
+	//}
 }

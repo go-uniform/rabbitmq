@@ -7,14 +7,18 @@ import (
 )
 
 func init() {
-	_base.Subscribe(_base.TargetCommand("queue.pop"), pop)
+	_base.Subscribe(_base.TargetCommand("queue.create"), queueCreate)
 }
 
-func pop(r uniform.IRequest, p diary.IPage) {
-	var params uniform.P
-	r.Read(&params)
+func queueCreate(r uniform.IRequest, p diary.IPage) {
+	var model struct {
+		QueueName string `bson:"queueName"`
+	}
+	r.Read(&model)
 
-	if err := r.Conn().Request(p, _base.TargetAction("queue", "pop"), r.Remainder(), uniform.Request{}, func(sub uniform.IRequest, _ diary.IPage) {
+	if err := r.Conn().Request(p, _base.TargetAction("queue", "create"), r.Remainder(), uniform.Request{
+		Model: model,
+	}, func(sub uniform.IRequest, _ diary.IPage) {
 		if sub.HasError() {
 			panic(sub.Error())
 		}
@@ -34,5 +38,4 @@ func pop(r uniform.IRequest, p diary.IPage) {
 	}); err != nil {
 		panic(err)
 	}
-
 }

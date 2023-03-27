@@ -2,31 +2,14 @@ package rabbitmq
 
 import "github.com/streadway/amqp"
 
-func (r *rabbitmq) Push() {
-
-	q, err := r.Channel.QueueDeclare(
-		"hello", // name
-		false,   // durable
-		false,   // delete when unused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	body := "Hello World!"
-	err = r.Channel.Publish(
-		"",     // exchange
-		q.Name, // routing key
-		false,  // mandatory
-		false,  // immediate
+func (r *rabbitmq) Push(queueName string) error {
+	return r.Channel.Publish(
+		"",
+		queueName,
+		false,
+		true,
 		amqp.Publishing{
 			ContentType: "text/plain",
-			Body:        []byte(body),
+			Body:        []byte("Hello World!"),
 		})
-	if err != nil {
-		panic(err)
-	}
 }

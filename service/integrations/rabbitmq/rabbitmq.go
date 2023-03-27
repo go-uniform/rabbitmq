@@ -16,8 +16,10 @@ func (r *rabbitmq) Close() error {
 }
 
 type IRabbitmq interface {
-	Push()
-	Pop() string
+	Push(queueName string) error
+	Declare(queueName string) (amqp.Queue, <-chan amqp.Delivery, error)
+	Inspect(queueName string) (amqp.Queue, error)
+	Delete(queueName string) (int, error)
 	Close() error
 }
 

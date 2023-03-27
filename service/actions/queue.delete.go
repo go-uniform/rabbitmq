@@ -8,21 +8,20 @@ import (
 )
 
 func init() {
-	_base.Subscribe(_base.TargetAction("queue", "push"), queuePush)
+	_base.Subscribe(_base.TargetAction("queue", "delete"), queueDelete)
 }
 
-func queuePush(r uniform.IRequest, p diary.IPage) {
+func queueDelete(r uniform.IRequest, p diary.IPage) {
 	var model struct {
 		QueueName string `bson:"queueName"`
-		Message   []byte `bson:"message"`
 	}
 	r.Read(&model)
 
-	p.Notice("queue.push", diary.M{
+	p.Notice("queue.delete", diary.M{
 		"model": model,
 	})
 
-	info.Rabbitmq.Push(model.QueueName)
+	info.Rabbitmq.Declare("test")
 
 	if r.CanReply() {
 		if err := r.Reply(uniform.Request{}); err != nil {
