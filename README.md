@@ -3,6 +3,21 @@ A templated starting point for uniform microservices
 
 ### Prerequisites
 
+#### Golang
+```
+sudo rm -rf /usr/bin/go
+sudo rm -rf /usr/local/go
+sudo rm -rf /usr/lib/golang
+sudo curl -L https://go.dev/dl/go1.20.2.linux-amd64.tar.gz -o go1.20.2.linux-amd64.tar.gz
+sudo mkdir -p /usr/lib/golang
+sudo tar --strip-components=1 -C /usr/lib/golang -xzf go1.20.2.linux-amd64.tar.gz
+sudo rm -f go1.20.2.linux-amd64.tar.gz
+```
+```
+export PATH="/usr/lib/golang/bin:$PATH"
+```
+Note append the above line to `~/.bashrc` file to permanently add directory to system path.
+
 #### NATS Server
 Generate required TLS certificates:
 ```
