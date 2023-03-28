@@ -7,6 +7,7 @@ require (
 	github.com/go-uniform/uniform v0.0.0-20230328094900-53fd44545b5b
 	github.com/nats-io/go-nats v1.7.2
 	github.com/spf13/cobra v1.6.1
+	github.com/streadway/amqp v1.0.0
 )
 
 require (
