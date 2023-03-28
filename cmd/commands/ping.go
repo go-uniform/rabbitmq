@@ -13,7 +13,7 @@ import (
 
 func init() {
 	cmd := _base.Command("ping", func(cmd *cobra.Command, args []string) {
-		service.Command("ping", time.Second, _base.NatsUri, _base.CompileNatsOptions(), map[string]string{
+		service.Command("ping", time.Second, _base.NatsUri, _base.CompileNatsOptions(), map[string]interface{}{
 			// todo: link custom flags to arg values here, example: "custom": custom,
 		}, func(data []byte) {
 			// todo: handle response data, if any is received
