@@ -7,18 +7,20 @@ import (
 )
 
 func init() {
-	_base.Subscribe(_base.TargetCommand("queue.push"), queuePush)
+	_base.Subscribe(_base.TargetCommand("queue.echo"), queueEcho)
 }
 
-func queuePush(r uniform.IRequest, p diary.IPage) {
+func queueEcho(r uniform.IRequest, p diary.IPage) {
 	var model struct {
-		QueueName string `bson:"queueName"`
-		Message   []byte `bson:"message"`
+		Message string `bson:"message"`
 	}
 	r.Read(&model)
 
 	if err := r.Conn().Request(p, _base.TargetAction("queue", "push"), r.Remainder(), uniform.Request{
-		Model: model,
+		Parameters: map[string]string{
+			"queueName": "echo",
+		},
+		Model: model.Message,
 	}, func(sub uniform.IRequest, _ diary.IPage) {
 		if sub.HasError() {
 			panic(sub.Error())

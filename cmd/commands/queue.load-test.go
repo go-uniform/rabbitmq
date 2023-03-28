@@ -11,7 +11,7 @@ import (
 func init() {
 
 	cmd := _base.Command("queue.load-test", func(cmd *cobra.Command, args []string) {
-		service.Command("queue.load-test", time.Minute*10, _base.NatsUri, _base.CompileNatsOptions(), map[string]string{}, func(bytes []byte) {
+		service.Command("queue.load-test", time.Minute*10, _base.NatsUri, _base.CompileNatsOptions(), map[string]interface{}{}, func(bytes []byte) {
 			fmt.Println(string(bytes))
 		})
 	}, "Load test the queue service")

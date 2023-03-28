@@ -12,7 +12,7 @@ func init() {
 	var queueName string
 
 	cmd := _base.Command("queue.create", func(cmd *cobra.Command, args []string) {
-		service.Command("queue.create", time.Minute, _base.NatsUri, _base.CompileNatsOptions(), map[string]string{
+		service.Command("queue.create", time.Minute, _base.NatsUri, _base.CompileNatsOptions(), map[string]interface{}{
 			"queueName": queueName,
 		}, func(bytes []byte) {
 			fmt.Println(string(bytes))

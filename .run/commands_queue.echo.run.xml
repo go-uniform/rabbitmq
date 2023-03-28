@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="commands:queue.push" type="GoApplicationRunConfiguration" factoryName="Go Application" folderName="commands">
+  <configuration default="false" name="commands:queue.echo" type="GoApplicationRunConfiguration" factoryName="Go Application" folderName="commands">
     <module name="rabbitmq" />
     <working_directory value="$PROJECT_DIR$" />
-    <parameters value="command:queue.push --message poison" />
+    <parameters value="command:queue.echo --message poison" />
     <kind value="PACKAGE" />
     <package value="service" />
     <directory value="$PROJECT_DIR$" />
