@@ -3,6 +3,27 @@ A templated starting point for uniform microservices
 
 ### Prerequisites
 
+#### RabbitMQ Server
+```
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/uniform-amqps.key -out /etc/ssl/certs/uniform-amqps.crt
+```
+```
+sudo chmod +r /etc/ssl/private/uniform-amqps.key
+echo 'consumer_timeout = 600000
+listeners.tcp = none
+listeners.ssl.default = 5672
+ssl_options.certfile             = /uniform-amqps.crt
+ssl_options.keyfile              = /uniform-amqps.key
+ssl_options.verify               = verify_none
+ssl_options.fail_if_no_peer_cert = false' > ~/rabbitmq.conf
+```
+```
+docker create -v /etc/ssl/private/uniform-amqps.key:/uniform-amqps.key -v /etc/ssl/certs/uniform-amqps.crt:/uniform-amqps.crt -v ~/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf --hostname rabbitmq --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3.9-management
+```
+```
+docker start -i rabbitmq
+```
+
 #### Golang
 ```
 sudo rm -rf /usr/bin/go

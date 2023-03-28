@@ -1,95 +1,67 @@
 package commands
 
 import (
-	"fmt"
-	"github.com/go-diary/diary"
-	"github.com/go-uniform/uniform"
-	"github.com/streadway/amqp"
-	"service/service/_base"
-	"service/service/info"
-	"time"
+    "encoding/json"
+    "fmt"
+    "github.com/go-diary/diary"
+    "github.com/go-uniform/uniform"
+    rabbit "github.com/wagslane/go-rabbitmq"
+    "service/service/_base"
+    "service/service/info"
+    "time"
 )
 
+const LOAD_TEST_QUEUE_NAME = "load-test"
+const LOAD_TEST_MESSAGES = 10000
+
 func init() {
-	_base.Subscribe(_base.TargetCommand("queue.load-test"), loadTest)
-}
-
-func loadTestUptake(r uniform.IRequest, p diary.IPage, durationSeconds int) float64 {
-	var counter = 0
-	var timeLimit = time.Tick(time.Second * time.Duration(durationSeconds))
-
-loop:
-	for true {
-		select {
-		case <-timeLimit:
-			break loop
-		default:
-			if err := r.Conn().Request(p, _base.TargetAction("queue", "push"), r.Remainder(), uniform.Request{
-				Model: map[string]interface{}{
-					"queueName": "load-test",
-					"message":   fmt.Sprintf("LOADTEST#%5d", counter),
-				},
-			}, func(sub uniform.IRequest, _ diary.IPage) {
-				if sub.HasError() {
-					panic(sub.Error())
-				}
-			}); err != nil {
-				panic(err)
-			}
-			break
-		}
-		counter++
-	}
-
-	return float64(counter) / float64(durationSeconds)
-}
-
-func loadTestDowntake(queueChannel <-chan amqp.Delivery) float64 {
-	var counter = 0
-	var timeLimit = time.Tick(time.Second)
-	var limiter = time.NewTicker(time.Millisecond)
-
-loop:
-	for true {
-		select {
-		case <-timeLimit:
-			break loop
-		case message, ok := <-queueChannel:
-			if !ok {
-				<-limiter.C
-				continue
-			}
-			message.Ack(false)
-		}
-		counter++
-	}
-
-	return float64(counter)
+    _base.Subscribe(_base.TargetCommand("queue.load-test"), loadTest)
 }
 
 func loadTest(r uniform.IRequest, p diary.IPage) {
-	if _, err := info.Rabbitmq.Delete("load-test"); err != nil {
-		panic(err)
-	}
-	_, queueChannel, err := info.Rabbitmq.Declare("load-test")
-	if err != nil {
-		panic(err)
-	}
+    var uptakeCount int64 = 0
+    var downtakeCount int64 = 0
 
-	uptake := loadTestUptake(r, p, 60)
-	downtake := loadTestDowntake(queueChannel)
-	p.Notice("load-test.output", diary.M{
-		"uptake":   uptake,
-		"downtake": downtake,
-	})
+    consumer, err := info.RabbitAmqp.Declare(LOAD_TEST_QUEUE_NAME, info.WorkersPerQueue, func(message rabbit.Delivery) rabbit.Action {
+        downtakeCount++
+        return rabbit.Ack
+    })
+    if err != nil {
+        panic(err)
+    }
+    defer consumer.Close()
 
-	if r.CanReply() {
-		if err := r.Reply(uniform.Request{
-			Model: fmt.Sprintf("Uptake: %0.2f msgs/s\nDowntake: %0.2f msgs/s\n", uptake, downtake),
-		}); err != nil {
-			p.Error("reply", err.Error(), diary.M{
-				"err": err,
-			})
-		}
-	}
+    startedAt := time.Now()
+    for uptakeCount < LOAD_TEST_MESSAGES {
+        if err := info.RabbitAmqp.Publish(LOAD_TEST_QUEUE_NAME, []byte(fmt.Sprintf("MESSAGE#%d", uptakeCount+1))); err != nil {
+            panic(err)
+        }
+        uptakeCount++
+    }
+    durationSeconds := time.Now().Sub(startedAt).Seconds()
+    downtake := float64(downtakeCount) / durationSeconds
+    uptake := float64(uptakeCount) / durationSeconds
+
+    output := diary.M{
+        "uptakeCount":     uptakeCount,
+        "downtakeCount":   downtakeCount,
+        "durationSeconds": durationSeconds,
+        "uptake":          uptake,
+        "downtake":        downtake,
+    }
+    p.Notice("load-test.output", output)
+
+    if r.CanReply() {
+        data, err := json.MarshalIndent(output, "", "    ")
+        if err != nil {
+            panic(err)
+        }
+        if err := r.Reply(uniform.Request{
+            Model: string(data),
+        }); err != nil {
+            p.Error("reply", err.Error(), diary.M{
+                "err": err,
+            })
+        }
+    }
 }

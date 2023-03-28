@@ -1,34 +1,46 @@
 package actions
 
 import (
-	"github.com/go-diary/diary"
-	"github.com/go-uniform/uniform"
-	"service/service/_base"
-	"service/service/info"
+    "github.com/go-diary/diary"
+    "github.com/go-uniform/uniform"
+    "go.mongodb.org/mongo-driver/bson"
+    "service/service/_base"
+    "service/service/info"
 )
 
 func init() {
-	_base.Subscribe(_base.TargetAction("queue", "push"), queuePush)
+    _base.Subscribe(_base.TargetAction("queue", "push"), queuePush)
 }
 
 func queuePush(r uniform.IRequest, p diary.IPage) {
-	var model struct {
-		QueueName string `bson:"queueName"`
-		Message   []byte `bson:"message"`
-	}
-	r.Read(&model)
+    params := r.Parameters()
+    queueName := params["queueName"]
+    if queueName == "" {
+        panic("queueName may not be empty")
+    }
 
-	p.Notice("queue.push", diary.M{
-		"model": model,
-	})
+    var model interface{}
+    r.Read(&model)
 
-	info.Rabbitmq.Push(model.QueueName)
+    p.Notice("queue.push", diary.M{
+        "params": params,
+        "model":  model,
+    })
 
-	if r.CanReply() {
-		if err := r.Reply(uniform.Request{}); err != nil {
-			p.Error("reply", err.Error(), diary.M{
-				"err": err,
-			})
-		}
-	}
+    payload, err := bson.Marshal(model)
+    if err != nil {
+        panic(err)
+    }
+
+    if err := info.RabbitAmqp.Publish(params["queueName"], payload); err != nil {
+        panic(err)
+    }
+
+    if r.CanReply() {
+        if err := r.Reply(uniform.Request{}); err != nil {
+            p.Error("reply", err.Error(), diary.M{
+                "err": err,
+            })
+        }
+    }
 }
