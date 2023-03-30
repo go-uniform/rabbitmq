@@ -1,5 +1,5 @@
 FROM scratch
 ADD build /service
 ENTRYPOINT ["/service"]
-HEALTHCHECK CMD ["/service","command:ping"]
+HEALTHCHECK CMD --interval=2s --timeout=10s --start-period=10s service command:ping
 CMD ["run"]
