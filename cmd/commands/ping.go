@@ -5,6 +5,7 @@ This is just an example command for reference
 */
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"service/cmd/_base"
 	"service/service"
@@ -16,6 +17,7 @@ func init() {
 		service.Command("ping", time.Second, _base.NatsUri, _base.CompileNatsOptions(), map[string]interface{}{
 			// todo: link custom flags to arg values here, example: "custom": custom,
 		}, func(data []byte) {
+			fmt.Println(string(data))
 			// todo: handle response data, if any is received
 		})
 	}, "Ping the currently running service instance")
